@@ -1,0 +1,65 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<form xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:noNamespaceSchemaLocation="file:/home/guido/src/fierro/pyForm/PyForm.xsd" unit="chars" format="(132,36)" engine="text">
+    
+    <margins top="0" left="0"/>
+    <variables>
+        <variable name="debug" value="True"/>
+    </variables>
+    
+    <title>"Factura Prueba"</title>
+    
+    <!--implementation module="colofon.client.model.printableModel" function="printSaleBill"/-->
+    
+    <body name="hoja1" copies="3">
+        <backgroundColor standard="white"/>
+        <foregroundColor standard="black"/>
+        <defaultFont family="courier" size="10"/>
+        <defaultLineWidth>0.2</defaultLineWidth>
+        
+        <elements>
+            <container name="ficha" top="0" left="0" width="185" height="280" rows="1" cols="1" enabled="True">
+                <elements>
+                    <cell top="1" left="50" width="10" height="1" align="left">
+                        <font family="times" size="14" italic="true"/>
+                        doc.doc.number
+                    </cell>
+                    <cell top="3" left="50" width="10" height="1" align="centre">
+                        <font family="times" bold="true" size="18"/>
+                        doc.date
+                    </cell>
+                    <cell top="5" left="10" width="30" height="1" align="left"><font underline="true"/>doc.client.legalName</cell>
+                    <cell top="6" left="10" width="30" height="1" align="left">doc.client.addressObj.address</cell>
+                    <cell top="6" left="40" width="10" height="1" align="left">doc.client.addressObj.locality</cell>
+                    <cell top="7" left="10" width="20" height="1" align="left">doc.client.phone</cell>
+                    <cell top="7" left="30" width="50" height="1" align="left">doc.client.mail</cell>
+                    <cell top="9" left="15" width="13" height="1" align="left">doc.client.cuit</cell>
+                    <cell top="9" left="40" width="35" height="1" align="left">doc.client.typeIva</cell>
+                    <cell top="11" left="0" width="80" height="1" align="left">doc.payments</cell>
+                    <cell top="12" left="0" width="80" height="1" align="left">doc.remits</cell>
+                    
+                    <container name="ficha" top="15" left="0" width="132" height="1" rows="10" cols="1" enabled="row &lt; len (doc.items)">
+                        <elements>
+                            <cell top="0" left="0" width="12" height="1" align="centre"><font compressed="true"/>doc.items[row].productCode</cell>
+                            <cell top="0" left="13" width="5" height="1" align="centre"><font compressed="true"/>doc.items[row].quantity</cell>
+                            <cell top="0" left="20" width="69" height="1" align="left"><font compressed="true"/>doc.items[row].description</cell>
+                            <cell top="0" left="90" width="9" height="1" align="right"><font compressed="true"/>doc.items[row].productPrice</cell>
+                            <cell top="0" left="100" width="9" height="1" align="right"><font compressed="true"/>doc.items[row].productDiscount</cell>
+                            <cell top="0" left="110" width="12" height="1" align="right"><font compressed="true"/>doc.items[row].importe</cell>
+                        </elements>
+                    </container>
+                    
+                    <cell top="25" left="20" width="10" height="10" align="left">doc.cantItems</cell>
+                    <cell top="25" left="30" width="10" height="10" align="left">doc.cantEjemplares</cell>
+                    <cell top="25" left="40" width="10" height="10" align="left">doc.weight</cell>
+                    <cell top="25" left="60" width="20" height="10" align="right">doc.subTotal</cell>
+                    <cell top="26" left="20" width="20" height="10" align="right">doc.conceptsDesc</cell>
+                    <cell top="26" left="40" width="20" height="10" align="right">doc.docIva</cell>
+                    <cell top="26" left="60" width="20" height="10" align="right"><font family="times" bold="true" size="18"/>doc.total</cell>
+                    <cell top="27" left="0" width="80" height="1" align="left" multiline="true" maxlines="3">doc.notes</cell>
+                    
+                </elements>
+            </container>
+        </elements>
+    </body>
+</form>

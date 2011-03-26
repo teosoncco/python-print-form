@@ -1,0 +1,35 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+
+<form xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:noNamespaceSchemaLocation="PyForm.xsd" format="A4" orientation="portrait" unit="mm"
+  author="Mariano Reingart" subject="Prueba de PyForm">
+  <margins top="10" left="5"/>
+  <variables>
+    <variable name="lala" value="'dfasfsdaf'"/>
+    <variable name="debug" value="False"/>
+  </variables>
+  
+  <title>"codigos de barra"</title>
+  
+  <!--implementation module="test" function="etiquetas"/-->
+  
+  <body name="hoja1" copies="1">
+    <defaultFont  family="arial" size="10"/>
+    <defaultLineWidth>0.2</defaultLineWidth>
+    <elements>
+      <text top="10" left="10">'Interleaved 2 of 5 12345678'<font family="arial"  /></text>      
+      <barcode top="15" left="10" barcode="interleaved25">'12345678'</barcode>
+      
+      <text top="40" left="10" >'EAN13 123456780128'<font family="arial"  /></text>
+      <barcode top="45" left="10" barcode="ean13" >'123456789012'</barcode>
+    
+      <text top="80" left="10">'CODE 39'<font family="arial"/></text>      
+      <barcode top="85" left="10" barcode="code39" width="1" height="10">'CODE 39'</barcode>
+      
+      <text top="110" left="10">'codabar 12345679'<font family="arial"  /></text>      
+      <barcode top="115" left="10" barcode="codabar">'123456789'</barcode>
+
+    </elements>
+  </body>
+ 
+</form>

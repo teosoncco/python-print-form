@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<form xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="file:/home/guido/src/fierro/pyForm/PyForm.xsd" unit="mm" format="(132,48)" engine="text">
+
+    <margins top="0" left="0"/>
+
+    <title>"Factura Libreria Tecnica"</title>
+
+    <implementation module="colofon.client.model.printableModel2" function="printSaleBill"/>
+
+    <variables>
+        <variable name="debug" value="False"/>
+        <variable name="itemsPP" value="15"/>
+    </variables>
+
+    <body name="hoja1" copies="1">
+        <backgroundColor standard="white"/>
+        <foregroundColor standard="black"/>
+        <defaultFont family="arial" size="10"/>
+
+        <elements>
+            <cell top="2" left="55" width="30" height="1" align="left">"Nro " + doc.number</cell>
+            <cell top="6" left="55" width="13" height="1" align="left">"Cordoba 981"</cell>
+            <cell top="7" left="55" width="13" height="1" align="left">doc.date</cell>
+            <cell top="0" left="30" width="20" height="1" align="center">doc.letter</cell>
+            <cell top="1" left="55" width="140" height="10" align="left" enabled="copy==0">"ORIGINAL"</cell>
+            <cell top="1" left="55" width="140" height="10" align="left" enabled="copy==1">"DUPLICADO"</cell>
+            <cell top="9" left="8" width="50" height="1" align="left">
+                <font compressed="true"/>
+                doc.client.legalName</cell>
+            <cell top="11" left="10" width="50" height="1" align="left">
+                <font compressed="true"/>
+                doc.client.address.address</cell>
+            <cell top="11" left="50" width="50" height="1" align="left">
+                <font compressed="true"/>
+                doc.client.address.getAddress([ '%(localidad)s' ])</cell>
+            <cell top="13" left="24" width="50" height="1" align="left" enabled="not doc.client.typeIva=='Consumidor Final'">
+                <font compressed="true"/>
+                doc.client.typeIva</cell>
+            <cell top="12" left="18" width="50" height="1" align="left">
+                <font compressed="true"/>
+                doc.client.cuit</cell>
+            <cell top="12" left="38" width="30" height="1" align="left" enabled="not doc.client.typeIva=='Consumidor Final'"><font compressed="true"/>"--------------------"</cell>
+            <cell top="12" left="120" width="30" height="1" align="left"><font compressed="true"/>doc.dueDate</cell>
+            <cell top="12" left="90" width="140" height="1" align="left"><font compressed="true"/>doc.client.clientCode</cell>
+
+
+            <!-- Items -->
+            <container left="0" top="16" cols="1" rows="15" height="1"  enabled="row &lt; len (doc.itemsAndConcepts)">
+                <elements>
+                    <cell top="1" left="1" width="6" height="1" align="right">
+                        <font compressed="true"/>
+                        doc.itemsAndConcepts[row].quantity
+                    </cell>
+                    <cell top="1" left="8" width="20" height="1" align="left">
+                        <font compressed="true"/>
+                        doc.itemsAndConcepts[row].productCode
+                    </cell>
+                    <cell top="1" left="29" width="40" height="1" align="left">
+                        <font compressed="true"/>
+                        doc.itemsAndConcepts[row].description
+                    </cell>
+                     <cell top="1" left="70" width="25" height="1" align="left">
+                        <font compressed="true"/>
+                        doc.itemsAndConcepts[row].visibleAuthor
+                    </cell>
+                    <cell top="1" left="96" width="10" height="1" align="right">
+                        <font compressed="true"/>
+                        doc.itemsAndConcepts[row].price.format(symbol=False)
+                    </cell>
+                    <cell top="1" left="107" width="12" height="1" align="centre">
+                        <font compressed="true"/>
+                    doc.itemsAndConcepts[row].discount.format("%0.2f")</cell>
+                    <cell top="1" left="120" width="12" height="1" align="right">
+                        <font compressed="true"/>
+                        doc.itemsAndConcepts[row].total.format(symbol=False)
+                    </cell>
+                </elements>
+            </container>
+
+            <cell top="36" left="21" width="15" height="1" align="left">
+                <font compressed="true"/>
+                doc.payments </cell>
+
+            <cell top="36" left="90" width="50" height="1" align="centre">
+	                <font compressed="true"/>
+           	        "Cant de ejemplates" + str(doc.productQuantity)
+	          </cell>
+
+            <cell top="40" left="15" width="60" height="1" align="left" multilines="2">
+                <font compressed="true"/>
+                doc.footerNotes()
+            </cell>
+
+
+            <cell top="38" left="60" width="20" height="1" align="right">doc.subTotal.format(symbol=False)</cell>
+
+          
+            <cell top="40" left="60" width="20" height="1" align="right">
+                doc.total.format(symbol=False)
+            </cell>
+            <cell top="38" left="21" width="50" height="10" align="left">
+	    		<font compressed="true"/>
+                        "SON: " + doc.total.getSonPesos()
+		    </cell>
+        </elements>
+
+    </body>
+</form>
