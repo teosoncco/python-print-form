@@ -1,0 +1,295 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+ 
+    <xs:complexType name="VariableSetValue">
+        <xs:attribute name="name" use="required" type="xs:string"/>
+        <xs:attribute name="value" use="required" type="xs:string"/>
+        <xs:attribute name="format" use="optional" type="xs:string"/>
+    </xs:complexType>
+ 
+     <xs:complexType name="Color">
+        <xs:attribute name="red" use="optional" type="xs:integer"/>
+        <xs:attribute name="green" use="optional" type="xs:integer"/>
+        <xs:attribute name="blue" use="optional" type="xs:integer"/>
+         <xs:attribute name="standard" >
+             <xs:simpleType>
+                 <xs:restriction base="xs:string">
+                     <xs:enumeration value="white"/>
+                     <xs:enumeration value="black"/>
+                     <xs:enumeration value="red"/>
+                     <xs:enumeration value="green"/>
+                     <xs:enumeration value="blue"/>
+                 </xs:restriction>
+             </xs:simpleType>
+         </xs:attribute >
+    </xs:complexType>
+
+    <xs:complexType name="Element" abstract="true" mixed="true">
+        <xs:choice minOccurs="0" maxOccurs="unbounded">
+            <xs:element name="foregroundColor" type="Color" minOccurs="0"/>
+            <xs:element name="backgroundColor" type="Color" minOccurs="0"/>
+        </xs:choice>
+        <xs:attribute name="name" type="xs:string" use="optional"/>
+        <xs:attribute name="top" type="xs:float" use="optional" default="0"/>
+        <xs:attribute name="left" type="xs:float" use="optional" default="0"/>
+        <xs:attribute name="enabled" type="xs:string" use="optional" default="True"/>
+    </xs:complexType>          
+        
+    <xs:simpleType name="Align">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="left"/>
+            <xs:enumeration value="right"/>
+            <xs:enumeration value="centre"/>
+            <xs:enumeration value="justified"><!-- solo en multicells--> </xs:enumeration>
+        </xs:restriction>
+    </xs:simpleType>
+
+    <xs:complexType name="Font">
+        <xs:attribute name="family" >
+            <xs:simpleType>
+                <xs:restriction base="xs:string">
+                    <xs:enumeration value="courier"/>
+                    <xs:enumeration value="helvetica"/>
+                    <xs:enumeration value="arial"/>
+                    <xs:enumeration value="times"/>
+                    <xs:enumeration value="symbol"/>
+                    <xs:enumeration value="zapfdingbats"/>
+                </xs:restriction>
+            </xs:simpleType>
+        </xs:attribute >                        
+        <xs:attribute name="bold" type="xs:boolean" use="optional" default="false"/>
+        <xs:attribute name="italic" type="xs:boolean" use="optional" default="false"/>
+        <xs:attribute name="underline" type="xs:boolean" use="optional" default="false"/>
+        <xs:attribute name="compressed" type="xs:boolean" use="optional" default="false"/>        
+        <xs:attribute name="size" type="xs:string" use="optional" default="12"/>
+    </xs:complexType>
+
+    <xs:simpleType name="LineWidth">
+        <xs:restriction base="xs:float">
+        </xs:restriction>
+    </xs:simpleType>
+    
+    <xs:complexType name="Border">
+        <xs:attribute name="left" type="xs:boolean" use="optional" default="false"/>
+        <xs:attribute name="right" type="xs:boolean" use="optional" default="false"/>
+        <xs:attribute name="top" type="xs:boolean" use="optional" default="false"/>
+        <xs:attribute name="bottom" type="xs:boolean" use="optional" default="false"/>
+        <xs:attribute name="lineWidth" type="LineWidth" use="optional" />
+    </xs:complexType>
+
+    <xs:complexType name="Text" mixed="true">
+        <xs:complexContent>
+            <xs:extension base="Element">
+                <xs:sequence>
+                    <xs:element name="font" type="Font" minOccurs="0" maxOccurs="1"/>
+                </xs:sequence>
+                <xs:attribute name="angle" type="xs:float" use="optional"/>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+
+    <xs:complexType name="Barcode" mixed="true">
+        <xs:complexContent>
+            <xs:extension base="Element">
+                <xs:attribute name="barcode">
+                   <xs:simpleType>
+                       <xs:restriction base="xs:string">
+                           <xs:enumeration value="code39"/>
+                           <xs:enumeration value="interleaved25"/>
+                           <xs:enumeration value="ean13"/>
+                           <xs:enumeration value="upc_a"/>
+                           <xs:enumeration value="codabar"/>
+                       </xs:restriction>
+                   </xs:simpleType>
+                </xs:attribute >
+                <xs:attribute name="width" type="xs:float" use="optional"/>
+                <xs:attribute name="height" type="xs:float" use="optional"/>            
+                <xs:attribute name="angle" type="xs:float" use="optional"/>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+
+    <xs:complexType name="Cell" mixed="true">
+        <xs:complexContent>
+            <xs:extension base="Element">
+                <xs:sequence>
+                    <xs:element name="font" type="Font" minOccurs="0" maxOccurs="1"/>
+                    <xs:element name="border" type="Border" minOccurs="0" maxOccurs="1"/>
+                </xs:sequence>
+                <xs:attribute name="align" type="Align" use="optional" default="left"/>
+                <xs:attribute name="fill" type="xs:boolean" use="optional" default="false"/>
+                <xs:attribute name="width" type="xs:float" use="required"/>
+                <xs:attribute name="height" type="xs:float" use="optional"/>
+                <xs:attribute name="multiline" type="xs:boolean" use="optional" default="false"/>
+                <xs:attribute name="maxlines" type="xs:int" use="optional" default="0"/><!-- solo para multiline=true -->
+                <xs:attribute name="angle" type="xs:float" use="optional"/>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+    
+    <xs:complexType name="Line">
+        <xs:complexContent>
+            <xs:extension base="Element">
+                <xs:attribute name="height" type="xs:float" use="optional"/>
+                <xs:attribute name="width" type="xs:float" use="optional"/>
+                <xs:attribute name="lineWidth" type="LineWidth" use="optional" />
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+
+    <xs:complexType name="Rect">
+        <xs:complexContent>
+            <xs:extension base="Element">
+                <xs:sequence>
+                </xs:sequence>
+                <xs:attribute name="height" type="xs:float" use="optional"/>
+                <xs:attribute name="width" type="xs:float" use="optional"/>
+                <xs:attribute name="lineWidth" type="LineWidth" use="optional" />
+                <xs:attribute name="fill" type="xs:boolean" use="optional" default="false"/>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+
+    <xs:complexType name="Image">
+        <xs:complexContent>
+            <xs:extension base="Element">
+                <xs:sequence>
+                </xs:sequence>
+                <xs:attribute name="filename" type="xs:string" use="required"/>
+                <xs:attribute name="height" type="xs:float" use="optional"/>
+                <xs:attribute name="width" type="xs:float" use="optional"/>
+                <xs:attribute name="type" use="optional">
+                    <xs:simpleType>
+                        <xs:restriction base="xs:string">
+                            <xs:enumeration value="jpg"/>
+                            <xs:enumeration value="jpeg"/>
+                            <xs:enumeration value="png"/>
+                        </xs:restriction>
+                    </xs:simpleType>
+                </xs:attribute >
+                <xs:attribute name="angle" type="xs:float" use="optional"/>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+
+     <xs:complexType name="Container" mixed="true">
+        <xs:complexContent>
+            <xs:extension base="Element">
+                <xs:sequence minOccurs="0" maxOccurs="unbounded" >
+                    <xs:element name="elements" maxOccurs="1" minOccurs="0">
+                        <xs:complexType>
+                            <xs:choice minOccurs="0" maxOccurs="unbounded">
+                                <xs:element name="text" type="Text"/>
+                                <xs:element name="line" type="Line"/>
+                                <xs:element name="rect" type="Rect"/>
+                                <xs:element name="cell" type="Cell"/>
+                                <xs:element name="image" type="Image"/>
+                                <xs:element name="container" type="Container"/>
+                                <xs:element name="barcode" type="Barcode"/>
+                            </xs:choice>
+                        </xs:complexType>
+                    </xs:element>
+                    <xs:element name="variables" minOccurs="0">
+                        <xs:complexType>
+                            <xs:sequence>
+                                <xs:element name="variable" type="VariableSetValue" minOccurs="1" maxOccurs="unbounded"/>
+                            </xs:sequence>
+                        </xs:complexType>
+                    </xs:element>
+                    <xs:element name="defaultFont" type="Font" minOccurs="0" maxOccurs="1"/>
+                    <xs:element name="defaultLineWidth" type="LineWidth" minOccurs="0" maxOccurs="1"/>                    
+                </xs:sequence>
+                <xs:attribute name="width" type="xs:float" use="optional"/>
+                <xs:attribute name="height" type="xs:float" use="optional"/>
+                <xs:attribute name="rows" type="xs:float" use="optional"/>
+                <xs:attribute name="cols" type="xs:float" use="optional"/>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+
+    <xs:complexType name="Margins">
+        <xs:attribute name="top" type="xs:float" use="required"/>
+        <xs:attribute name="left" type="xs:float" use="required"/>
+        <xs:attribute name="right" type="xs:float" use="optional"/>
+    </xs:complexType>
+    
+    <xs:element name="form" type="Form"/>
+    <xs:complexType name="Form">
+        <xs:sequence minOccurs="0" maxOccurs="unbounded">
+            <xs:element name="margins" type="Margins" minOccurs="0" maxOccurs="1"/>            
+            <xs:element name="variables" minOccurs="0">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element name="variable" type="VariableSetValue" minOccurs="1" maxOccurs="unbounded"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            
+            <xs:element name="title" maxOccurs="1" minOccurs="0" type="xs:string"/>
+
+            <xs:element name="implementation" minOccurs="1" maxOccurs="1">
+                <xs:complexType >
+                    <xs:attribute name="module" use="required" type="xs:string"/>
+                    <xs:attribute name="function" use="required" type="xs:string"/>
+                </xs:complexType>
+           </xs:element>           
+        
+            <xs:element name="header" type="Container" minOccurs="0" maxOccurs="1"/>
+            <xs:element name="body" minOccurs="1" maxOccurs="unbounded">
+                <xs:complexType>
+                    <xs:complexContent>                        
+                        <xs:extension base="Container">
+                            <xs:attribute name="copies" type="xs:integer" use="optional"/>                            
+                        </xs:extension>
+                    </xs:complexContent>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="footer" type="Container" minOccurs="0" maxOccurs="1"/>
+            
+        </xs:sequence>
+        <xs:attribute name="format" >
+            <xs:simpleType>
+                <xs:restriction base="xs:string">
+                    <xs:enumeration value="A4"/>
+                    <xs:enumeration value="letter"/>
+                    <xs:enumeration value="legal"/>
+                    <xs:enumeration value="A3"/>
+                    <xs:enumeration value="A5"/>
+                    <xs:enumeration value="custom"/>
+                </xs:restriction>
+            </xs:simpleType>
+        </xs:attribute >                        
+        <xs:attribute  name="orientation" default="portrait">
+            <xs:simpleType>
+                <xs:restriction base="xs:string">
+                    <xs:enumeration value="portrait"/>
+                    <xs:enumeration value="landscape"/>
+                </xs:restriction>
+            </xs:simpleType>
+        </xs:attribute >
+        <xs:attribute  name="unit" default="mm">
+            <xs:simpleType>
+                <xs:restriction base="xs:string">
+                    <xs:enumeration value="mm"/>
+                    <xs:enumeration value="cm"/>
+                    <xs:enumeration value="pt"/>
+                    <xs:enumeration value="in"/>
+                    <xs:enumeration value="chars"/> <!-- solo para texto plano -->                   
+                </xs:restriction>
+            </xs:simpleType>
+        </xs:attribute>
+        <xs:attribute name="author" type="xs:string" use="optional"/>
+        <xs:attribute name="subject" type="xs:string" use="optional"/>
+        <xs:attribute name="creator" type="xs:string" use="optional" default="Lambda PyForm"/>        
+        <xs:attribute name="engine" default="fpdf">
+            <xs:simpleType>
+                <xs:restriction base="xs:string">
+                    <xs:enumeration value="fpdf"/>
+                    <xs:enumeration value="text"/>
+                </xs:restriction>
+            </xs:simpleType>
+        </xs:attribute >
+        <xs:attribute name="collateCopies" type="xs:boolean" use="optional" default="false"/>
+    </xs:complexType>
+
+</xs:schema>

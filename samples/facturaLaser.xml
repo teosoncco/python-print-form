@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<form xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:noNamespaceSchemaLocation="file:/home/guido/src/fierro/pyForm/PyForm.xsd">
+
+    <margins top="10" left="17"/>
+    <variables>
+        <variable name="debug" value="False"/>
+        <variable name="itemsPP" value="27"/>
+    </variables>
+
+    <title>"Factura E SigloXXI"</title>
+
+    <implementation module="colofon.client.model.printableModel2" function="printSaleBill"/>
+
+    <body name="hoja1" copies="2">
+        <backgroundColor standard="white"/>
+        <foregroundColor standard="black"/>
+        <defaultFont family="arial" size="8"/>
+        <defaultLineWidth>0.2</defaultLineWidth>
+
+        <elements>
+            <container name="ficha" top="0" left="0" width="185" height="280" rows="1" cols="1" enabled="True">
+                <elements>
+                    <cell top="7" left="135" width="50" height="10" align="left">doc.description</cell>
+                    <cell top="13" left="140" width="30" height="10" align="left">
+                        <font family="times" bold="true" size="12"/>
+                        doc.date
+                    </cell>
+
+                    <cell top="40" left="21" width="100" height="10" align="left">doc.client.legalName</cell>
+                    <cell top="46" left="21" width="100" height="10" align="left">doc.client.address.getAddress(['%(address)s'])</cell>
+                    <cell top="52" left="21" width="100" height="10" align="left">doc.client.address.getAddress(['%(localidad)s'])</cell>
+                    <cell top="58" left="21" width="100" height="10" align="left">doc.client.address.getAddress( [ '%(phone)s'])</cell>
+                    <cell top="68" left="21" width="100" height="10" align="left">doc.client.clientCode</cell>
+
+                    <cell top="40" left="153" width="35" height="10" align="left">doc.client.cuit</cell>
+                    <cell top="46" left="153" width="35" height="10" align="left">doc.client.typeIva</cell>
+                    <cell top="53" left="153" width="35" height="10" align="left">doc.dueDate</cell>
+                    <cell top="61" left="153" width="35" height="10" align="left">doc.payments</cell>
+                    <cell top="68" left="153" width="35" height="10" align="left">doc.headerRemits</cell>
+                    <cell top="75" left="153" width="35" height="10" align="left">doc.legalQuotation</cell>
+
+                    <container name="ficha" top="92" left="0" width="185" height="5" rows="27" cols="1" enabled="(row  + (pgno * itemsPP) ) &lt; len (doc.itemsAndConcepts)">
+                        <elements>
+                            <cell top="0" left="0" width="10" height="5" align="left">doc.itemsAndConcepts[row].quantity</cell>
+                            <cell top="0" left="15" width="40" height="5" align="left"><font size="8"/>doc.itemsAndConcepts[row].isbn</cell>
+                            <cell top="0" left="50" width="80" height="5" align="left">doc.itemsAndConcepts[row].description</cell>
+                            <cell top="0" left="130" width="20" height="5" align="right">doc.itemsAndConcepts[row].priceDto</cell>
+                            <cell top="0" left="158" width="22" height="5" align="right">doc.itemsAndConcepts[row].total</cell>
+                        </elements>
+                    </container>
+
+                    <cell top="240" left="5" width="26" height="10" align="left">doc.itemsQuantity</cell>
+                    <cell top="240" left="55" width="33" height="10" align="left">doc.productQuantity</cell>
+                    <cell top="240" left="114" width="27" height="10" align="left">doc.weight</cell>
+                    <cell top="220" left="150" width="30" height="10" align="right">doc.subTotal</cell>
+                    <cell top="237" left="150" width="30" height="10" align="right">
+                        <font family="times" bold="true" size="14"/>
+                        doc.total
+                    </cell>
+                    <cell top="220" left="5" width="130" height="5" align="left" multiline="true" maxlines="3">doc.footerNotes()</cell>
+                    <cell top="248" left="15" width="130" height="5" align="left">doc.total.getSonPesos()</cell>
+                    <cell top="271" left="143" width="50" height="10" align="left"><font family="arial" bold="true" size="8"/>doc.transactionUser</cell>
+
+                </elements>
+            </container>
+        </elements>
+    </body>
+</form>

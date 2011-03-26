@@ -1,0 +1,14 @@
+FALTA un readme como la gente y mucha documentación, pero la librería funciona.
+
+La librería funciona y está en producción. 
+
+Si te interesa usarla mandame un mail a guillermo.narvaja@fierro-soft.com.ar 
+
+Ejemplo rápido de uso:
+
+    from pyForm.pyForm import Form
+    form = Form("facturaLaser.xml")
+    form.render("salida.pdf", doc=miFactura, otraVariable=2)
+
+El template xml va a llamar a la función indicada en el tag <implementation> con el "form" como primer parámetro y luego los demás. Esta función debe setear la cantidad de páginas, puede hacer alguna transformación con los parámetros y debe devolver las variables que se van a usar en el template.
+

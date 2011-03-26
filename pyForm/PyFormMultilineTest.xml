@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<form xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:noNamespaceSchemaLocation="../../../../pyForm/PyForm.xsd" format="A4"
+  orientation="portrait" unit="mm" author="Noemi" subject="cupones-luma">
+  <margins top="15" left="15"/>
+  <variables>
+    <variable name="debug" value="False"/>
+  </variables>
+
+  <title>"Ejemplo multicell (lineas multiples)"</title>
+
+
+  <body name="hoja1" copies="1">
+    <backgroundColor standard="white"/>
+    <foregroundColor standard="black"/>
+    <defaultFont family="arial" size="12"/>
+    <defaultLineWidth>0.2</defaultLineWidth>
+    <elements>
+      <container name="quota" top="0" left="0" width="200" height="300" rows="1" cols="1"
+        enabled="True">
+
+        <elements>
+          <cell name="texto3" width="90" top="55" height="5" multiline="true" align="justified" >'esto no se imprime porque no se definio maxlines'</cell>
+          <cell name="texto" width="90" top="105" height="5" multiline="true" align="justified" maxlines="1"> 'Ante la falta del pago de las cuotas atrasadas de su crédito, nos vemos en la obligación de hacerle llegar la presente ya que la gestión de nuestro cobrador se ha visto frustrada porque no consiguió que usted cancelara las cuotas en mora. Intimamos la cancelación de dichas cuotas atrasadas que suman $20.000.- en forma inmediata para evitar que nos veamos en la necesidad de iniciarle una demanda por falta de pago con embargo de sueldos, bienes, pago de honorarios y costas. Esperando que su buen criterio lo lleve a recuperar su crédito, lo esperamos en calle ______________, localidad _____________, en el horario de _____a _____hs. Y de _____ a ______o bien acérquese a su cobrador.'</cell>
+          <cell name="texto1" width="90" top="155" height="5" multiline="true" align="left" maxlines="2">'c'*1000</cell>
+        <cell name="texto2" width="90" top="205" height="5" multiline="true" align="justified" maxlines="3">'a'*1000</cell>
+        </elements>
+      </container>
+    </elements>
+  </body>
+</form>

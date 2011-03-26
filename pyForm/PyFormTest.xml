@@ -1,0 +1,37 @@
+﻿<?xml version="1.0" encoding="iso-8859-1"?>
+
+<form xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:noNamespaceSchemaLocation="PyForm.xsd" format="legal" orientation="portrait" unit="mm"
+  author="Mariano Reingart" subject="Prueba de PyForm" collateCopies="true">
+  <margins top="10" left="5"/>
+  <variables>
+    <variable name="lala" value="'dfasfsdaf'"/>
+    <variable name="debug" value="False"/>
+  </variables>
+  
+  <title>titulo</title>
+  
+  <implementation module="test" function="etiquetas"/>
+    
+  <body name="hoja1" copies="2">
+    <backgroundColor standard="white"/>
+    <foregroundColor standard="black"/>
+    <defaultFont  family="arial" size="10"/>
+    <defaultLineWidth>0.2</defaultLineWidth>
+    <elements>
+      <container name="etiqueta" top="0" left="0" width="105" height="37" rows="8" cols="2"
+        enabled="len(items)&gt;(pgno *16 + row * 2 + col)">
+        <elements>
+          <rect left="0" top="0" width="105" height="37" lineWidth="0.2" />
+          <text top="10" left="10" name="nombre">items[ pgno *16 + row * 2 + col ] </text>
+          <text top="15" left="10" name="direccion">'direccion[%s][%s][%s]' % (pgno,row,col) <font
+              family="arial" bold="true" />
+          </text>
+          <cell top="20" left="0" width="10" height="5" align="right" name="cell1" ><border lineWidth="0.4" top="true" left="true" right="true" bottom="true"/>'celda a la derecha'</cell>
+          <cell top="25" left="0" width="10" height="5" align="left"  name="cell2">''<border lineWidth="0.4" top="true" left="true" right="true" bottom="true"/></cell>
+          <cell top="30" left="0" width="20" height="5" align="centre" name='celda centrada'>1</cell>
+        </elements>
+      </container>
+    </elements>
+  </body>
+</form>
