@@ -1,16 +1,47 @@
 # -*- coding: iso-8859-1 -*-
 
 import traceback
-from xml.dom.minidom import Node, parse
+import copy
+from xml.dom.minidom import parse
 import os.path
-from fierrotools.xmldomUtils import *
+from xmldomUtils import *
 
 from fpdf.fpdf import FPDF
 from rawtext import RawTextEngine
 import barcodes
 
+try:
+    from collections import OrderedDict
+except ImportError: # No está disponible en < 2.7
+    try:
+        from ordereddict import OrderedDict # http://pypi.python.org/pypi/ordereddict
+    except ImportError:
+        OrderedDict = dict
+
+
 __version__ = "Lambda PyForm 1.1"
 # TODO: Colores
+
+# Clases auxiliares para hacer que los atributos sean evaluables
+
+class AttributeSetter:
+    def __init__(self, attributeName):
+        self.attributeName = attributeName
+
+    def __call__(self, obj, value):
+        setattr(obj, "_%s" % self.attributeName, value)
+
+class EvalTextAttributeGetter:
+    def __init__(self, attributeName, convertFn=None):
+        self.attributeName = attributeName
+        self.convertFn = convertFn
+
+    def __call__(self, obj):
+        if self.convertFn:
+            return self.convertFn(obj.evalText(str(getattr(obj, "_%s" % self.attributeName))))
+        else:
+            return obj.evalText(getattr(obj, "_%s" % self.attributeName))
+
 
 
 class Parseable(object):
@@ -301,7 +332,7 @@ class Rect(Line):
 
 
 class Image(Element):
-    __slots__ = Element.__slots__ + ["width", "height", "filename", "type"]
+    __slots__ = Element.__slots__ + ["width", "height", "filename", "type", "keepProportion"]
 
     angle = 0 # Seteo el default para el atributo
 
@@ -310,11 +341,28 @@ class Image(Element):
             if self.angle:
                 # setear angulo de rotación
                 engine.Rotate(self.angle, self.left + offsetX, self.top + offsetY)
-            engine.Image(eval(self.filename, globals, locals),
+            fileName = eval(self.filename, globals, locals)
+            if self.keepProportion:
+                from PIL import Image
+                im = Image.open(fileName)
+                width, height = im.size[0], im.size[1]
+                if height * (self.width / width) > self.height: # Limitado por height
+                    newWidth = width * (self.height / height)
+                    newHeight = self.height
+                else: # Limitado por width
+                    newHeight = height * (self.width / width)
+                    newWidth = self.width
+            else:
+                newWidth = self.width
+                newHeight = self.height
+
+            engine.Image(fileName,
                       self.left + offsetX,
                       self.top + offsetY,
-                      self.width,
-                      self.height,
+                      ## self.width,
+                      ## self.height,
+                      newWidth,
+                      newHeight,
                       self.type)
             if self.angle:
                 # volver a horizontal (0 grados)
@@ -327,6 +375,7 @@ class Image(Element):
         self.filename = getAttribute(node, "filename", "")
         self.type = getAttribute(node, "type", "")
         self.angle = float(getAttribute(node, "angle", 0))
+        self.keepProportion = getAttribute(node, "keepProportion", "false") == "true"
 
 # Helpers, no son elementos "dibujables":
 
@@ -433,9 +482,9 @@ class Variable(Parseable):
         self.name = getRequiredAttribute(node, "name")
         self.value = getRequiredAttribute(node, "value")
 
+
+
 # Contenedores de Elementos
-
-
 class Container(Element):
     __slots__ = Element.__slots__ + ["elements", "rows", "cols", "copies",
                                       "width", "height",
@@ -446,7 +495,14 @@ class Container(Element):
     def __init__(self):
         self.containedClasses = {'text': Text, 'line': Line, 'rect': Rect, 'cell': Cell, 'image': Image, 'container': Container, 'barcode': Barcode}
 
+    def evalText(self, text):
+        return eval(text, globals(), self.locals)
+
+    def setLocals(self, locals):
+        self.locals = locals
+
     def render(self, engine, offsetX=0, offsetY=0, globals=None, locals=None, defaults=None):
+        self.locals = locals
 
         offsetX = offsetX + self.left
         offsetY = offsetY + self.top
@@ -468,10 +524,17 @@ class Container(Element):
                             var.eval(globals, locals)
                     for element in self.elements.values():
                         #print "rendering %s[%s,%s]: (%s,%s) " % (self.name,row,col,offsetX + row*self.width,offsetY + col*self.height)
+                        elementLocals = copy.copy(locals)
                         element.render(engine, offsetX + col * self.width,
                                         offsetY + row * self.height,
-                                        globals, locals,
+                                        globals, elementLocals,
                                         defaults)
+
+    copies = property(EvalTextAttributeGetter("copies", int), AttributeSetter("copies"))
+    width = property(EvalTextAttributeGetter("width", float), AttributeSetter("width"))
+    height = property(EvalTextAttributeGetter("height", float), AttributeSetter("height"))
+    rows = property(EvalTextAttributeGetter("rows", int), AttributeSetter("rows"))
+    cols = property(EvalTextAttributeGetter("cols", int), AttributeSetter("cols"))
 
     def parse(self, node):
         Element.parse(self, node)
@@ -480,16 +543,16 @@ class Container(Element):
         defaultLineWidth = getChildByName(node, "defaultLineWidth")
         self.defaultLineWidth = defaultLineWidth and LineWidth.newObject(defaultLineWidth) or None
         elements = getChildByName(node, "elements")
-        self.elements = {}
+        self.elements = OrderedDict()
         for element in elements.childNodes:
             if element.localName in self.containedClasses:
                 e = self.containedClasses[element.localName].newObject(element)
                 self.elements[e.name] = e
-        self.rows = int(getAttribute(node, "rows", "1"))
-        self.cols = int(getAttribute(node, "cols", "1"))
-        self.copies = int(getAttribute(node, "copies", "1"))
-        self.width = float(getAttribute(node, "width", 0))
-        self.height = float(getAttribute(node, "height", 0))
+        self.rows = getAttribute(node, "rows", "1")
+        self.cols = getAttribute(node, "cols", "1")
+        self.copies = getAttribute(node, "copies", "1")
+        self.width = getAttribute(node, "width", 0)
+        self.height = getAttribute(node, "height", 0)
         self.variables = {}
         vars = getChildByName(node, "variables")
         if vars:
@@ -502,7 +565,7 @@ class Container(Element):
 class Form(Parseable):
     __slots__ = ["variables", "bodies", "header", "pages",
                   "format", "orientation", "unit",
-                  "title", "top", "left", "right",
+                  "title", "_top", "_left", "_right",
                   "author", "subject", "creator",
                   "basedir", "engine", "collateCopies",
                 ]
@@ -531,6 +594,13 @@ class Form(Parseable):
             self.creator = creator or ""
             self.collateCopies = False
 
+    def evalText(self, text):
+        return eval(text, globals(), self.locals)
+
+    top = property(EvalTextAttributeGetter("top", float), AttributeSetter("top"))
+    left = property(EvalTextAttributeGetter("left", float), AttributeSetter("left"))
+    right = property(EvalTextAttributeGetter("right", float), AttributeSetter("right"))
+
     def render(self, filename, *args, **kwargs):
 
         # call the implementation
@@ -540,6 +610,7 @@ class Form(Parseable):
             locals = self.locals
         else:
             locals = {}
+        self.locals = locals
         if self.engine == 'fpdf':
             engine = FPDF(self.orientation[0].upper(), self.unit, self.format)
         elif self.engine == 'text':
@@ -570,6 +641,7 @@ class Form(Parseable):
                         )
 
         for body in self.bodies.values():
+            body.setLocals(locals)
             if not self.collateCopies:
                 # no intercalar
                 for copy in xrange(int(body.copies)):
@@ -607,9 +679,9 @@ class Form(Parseable):
 
         margins = getChildByName(node, "margins")
         if margins:
-            self.top = float(getAttribute(margins, "top", "0"))
-            self.left = float(getAttribute(margins, "left", "0"))
-            self.right = float(getAttribute(margins, "right", "0"))
+            self.top = getAttribute(margins, "top", "0")
+            self.left = getAttribute(margins, "left", "0")
+            self.right = getAttribute(margins, "right", "0")
 
         impl = getChildByName(node, "implementation")
         self.implementation = None
