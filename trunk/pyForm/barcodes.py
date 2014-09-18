@@ -172,7 +172,7 @@ class BaseEAN:
             '9': ('A', 'B', 'B', 'A', 'B', 'A')}
 
     def GetCheckDigit(self, barcode):
-        "Compute the check digit"
+        "Compute the check digit"  # TODO: No sirve para codigos de barra mas grandes (Code 39)
         s = 0
         for i in xrange(1, 12, 2):
             s += 3 * int(barcode[i])
@@ -183,16 +183,20 @@ class BaseEAN:
             r = 10 - r
         return str(r)
 
-    def TestCheckDigit(self, barcode):
-        "Test validity of check digit"
-        s = 0
-        for i in xrange(1, 12, 2):
-            s += 3 * int(barcode[i])
-        for i in xrange(0, 11, 2):
-            s += int(barcode[i])
-        return (s + int(barcode[12])) % 10 == 0
+    def TestCheckDigit(self, string):
+        "Test validity of check digit"  # TODO: sirve para codigos de barra mas grandes (Code 39)
+        pairsSum = 0
+        oddsSum = 0
+        for pos, char in enumerate(string[:-1]):
+            if (pos % 2) == 0:
+                pairsSum += int(char)
+            else:
+                oddsSum += int(char)
+        ret = (oddsSum * 3) + pairsSum
 
-    def render(self, pdf, x, y, text):
+        return (ret + int(string[-1])) % 10 == 0
+
+    def render(self, pdf, x, y, text):  # TODO: No sirve para codigos de barra mas grandes (Code 39)
         pdf.SetFillColor(0)
         barcode = text
 
