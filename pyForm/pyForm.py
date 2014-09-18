@@ -707,7 +707,7 @@ if __name__ == "__main__":
 #    else:
     fn = sys.argv[1]
 
-    from colofon.model.printer import EpsonPrinter
+    from printers import EpsonPrinter
 
     f = Form(fn)
 
